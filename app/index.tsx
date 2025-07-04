@@ -14,6 +14,7 @@ import {
   Platform,
   StatusBar,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 interface ThemeColors {
   primary: string;
@@ -64,6 +65,13 @@ interface FormData {
   phone: string;
   email: string;
   password: string;
+}
+
+interface FormErrors {
+  name?: string;
+  phone?: string;
+  email?: string;
+  password?: string;
 }
 
 interface LoadingDotsProps {
@@ -170,14 +178,17 @@ const validateEmail = (email: string): boolean => {
   return emailRegex.test(email);
 };
 
-const validateForm = (data: FormData): string | null => {
-  if (!data.name.trim()) return "Nome é obrigatório";
-  if (!data.phone.trim()) return "Telefone é obrigatório";
-  if (!data.email.trim()) return "Email é obrigatório";
-  if (!validateEmail(data.email)) return "Email inválido";
-  if (!data.password.trim()) return "Senha é obrigatória";
-  if (data.password.length < 6) return "Senha deve ter pelo menos 6 caracteres";
-  return null;
+const validateForm = (data: FormData): FormErrors | null => {
+  const errors: FormErrors = {};
+  if (!data.name.trim()) errors.name = "Nome é obrigatório";
+  if (!data.phone.trim()) errors.phone = "Telefone é obrigatório";
+  if (!data.email.trim()) errors.email = "Email é obrigatório";
+  if (data.email.trim() && !validateEmail(data.email)) errors.email = "Email inválido";
+  if (!data.password.trim()) errors.password = "Senha é obrigatória";
+  if (data.password.trim() && data.password.length < 6)
+    errors.password = "Senha deve ter pelo menos 6 caracteres";
+
+  return Object.keys(errors).length > 0 ? errors : null;
 };
 
 const useLoadingDots = () => {
@@ -273,6 +284,8 @@ const CustomModal: React.FC<{
 
   const styles = createStyles(theme);
 
+  const isSuccessModal = title.includes("Sucesso!");
+
   return (
     <Modal visible={isVisible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.modalOverlay}>
@@ -284,8 +297,23 @@ const CustomModal: React.FC<{
             },
           ]}
         >
-          <Text style={styles.modalTitle}>{title}</Text>
-          <Text style={styles.modalMessage}>{message}</Text>
+          {isSuccessModal ? (
+            <>
+              <Ionicons
+                name="checkmark-circle"
+                size={60}
+                color={theme.colors.success}
+                style={styles.modalIcon}
+              />
+              <Text style={[styles.modalMessage, styles.modalMessageBold]}>{message}</Text>
+            </>
+          ) : (
+            <>
+              <Text style={styles.modalTitle}>{title}</Text>
+              <Text style={styles.modalMessage}>{message}</Text>
+            </>
+          )}
+
           <TouchableOpacity style={styles.modalButton} onPress={onClose} activeOpacity={0.8}>
             <Text style={styles.modalButtonText}>Continuar</Text>
           </TouchableOpacity>
@@ -303,6 +331,7 @@ const ExclusiveRegisterForm: React.FC = () => {
     email: "",
     password: "",
   });
+  const [formErrors, setFormErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState<boolean>(false);
   const [modal, setModal] = useState<{
     isVisible: boolean;
@@ -320,6 +349,11 @@ const ExclusiveRegisterForm: React.FC = () => {
       ...prev,
       [field]: field === "phone" ? formatPhone(value) : value,
     }));
+    setFormErrors((prev) => {
+      const newErrors = { ...prev };
+      delete newErrors[field];
+      return newErrors;
+    });
   }, []);
 
   const showModal = useCallback((title: string, message: string) => {
@@ -339,6 +373,7 @@ const ExclusiveRegisterForm: React.FC = () => {
         email: "",
         password: "",
       });
+      setFormErrors({});
     }
   }, [modal.title]);
 
@@ -355,9 +390,11 @@ const ExclusiveRegisterForm: React.FC = () => {
   );
 
   const handleSubmit = useCallback(async (): Promise<void> => {
-    const validationError = validateForm(formData);
-    if (validationError) {
-      showModal("Erro de Validação", validationError);
+    const validationErrors = validateForm(formData);
+    if (validationErrors) {
+      setFormErrors(validationErrors);
+      const firstErrorMessage = Object.values(validationErrors)[0];
+      showModal("Erro de Validação", firstErrorMessage);
       return;
     }
 
@@ -365,9 +402,8 @@ const ExclusiveRegisterForm: React.FC = () => {
     animateButton(0.95);
 
     try {
-
       await new Promise<void>((resolve) => setTimeout(resolve, 2500));
-      showModal("Sucesso! ", "Sua conta foi criada com sucesso. Bem-vindo!");
+      showModal("Sucesso!", "Sua conta foi criada com sucesso. Bem-vindo!");
     } catch (error) {
       showModal("Erro no Servidor", "Não foi possível criar sua conta. Tente novamente.");
     } finally {
@@ -387,60 +423,77 @@ const ExclusiveRegisterForm: React.FC = () => {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Header */}
         <View style={styles.header}>
           <Text style={styles.title}>Seja Bem-vindo</Text>
           <Text style={styles.subtitle}>Crie sua conta e faça parte da nossa comunidade exclusiva</Text>
           <View style={styles.divider} />
         </View>
 
-        {/* Formulário */}
         <View style={[styles.form, isSmallScreen && styles.formSmall]}>
-          <TextInput
-            style={styles.input}
-            placeholderTextColor={theme.colors.textSecondary}
-            placeholder="Nome completo"
-            value={formData.name}
-            onChangeText={(text) => updateField("name", text)}
-            autoCapitalize="words"
-            returnKeyType="next"
-          />
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={[styles.input, formErrors.name && styles.inputError]}
+              placeholderTextColor={theme.colors.textSecondary}
+              placeholder="Nome completo"
+              value={formData.name}
+              onChangeText={(text) => updateField("name", text)}
+              autoCapitalize="words"
+              returnKeyType="next"
+            />
+            {formErrors.name && (
+              <Ionicons name="alert-circle" size={24} color={theme.colors.error} style={styles.errorIcon} />
+            )}
+          </View>
 
-          <TextInput
-            style={styles.input}
-            placeholderTextColor={theme.colors.textSecondary}
-            placeholder="Telefone"
-            keyboardType="phone-pad"
-            maxLength={15}
-            value={formData.phone}
-            onChangeText={(text) => updateField("phone", text)}
-            returnKeyType="next"
-          />
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={[styles.input, formErrors.phone && styles.inputError]}
+              placeholderTextColor={theme.colors.textSecondary}
+              placeholder="Telefone"
+              keyboardType="phone-pad"
+              maxLength={15}
+              value={formData.phone}
+              onChangeText={(text) => updateField("phone", text)}
+              returnKeyType="next"
+            />
+            {formErrors.phone && (
+              <Ionicons name="alert-circle" size={24} color={theme.colors.error} style={styles.errorIcon} />
+            )}
+          </View>
 
-          <TextInput
-            style={styles.input}
-            placeholderTextColor={theme.colors.textSecondary}
-            placeholder="Email"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-            value={formData.email}
-            onChangeText={(text) => updateField("email", text)}
-            returnKeyType="next"
-          />
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={[styles.input, formErrors.email && styles.inputError]}
+              placeholderTextColor={theme.colors.textSecondary}
+              placeholder="Email"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              value={formData.email}
+              onChangeText={(text) => updateField("email", text)}
+              returnKeyType="next"
+            />
+            {formErrors.email && (
+              <Ionicons name="alert-circle" size={24} color={theme.colors.error} style={styles.errorIcon} />
+            )}
+          </View>
 
-          <TextInput
-            style={styles.input}
-            placeholderTextColor={theme.colors.textSecondary}
-            placeholder="Senha (mín. 6 caracteres)"
-            secureTextEntry
-            value={formData.password}
-            onChangeText={(text) => updateField("password", text)}
-            returnKeyType="done"
-            onSubmitEditing={handleSubmit}
-          />
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={[styles.input, formErrors.password && styles.inputError]}
+              placeholderTextColor={theme.colors.textSecondary}
+              placeholder="Senha (mín. 6 caracteres)"
+              secureTextEntry
+              value={formData.password}
+              onChangeText={(text) => updateField("password", text)}
+              returnKeyType="done"
+              onSubmitEditing={handleSubmit}
+            />
+            {formErrors.password && (
+              <Ionicons name="alert-circle" size={24} color={theme.colors.error} style={styles.errorIcon} />
+            )}
+          </View>
 
-          {/* Botão */}
           <Animated.View
             style={[
               styles.buttonContainer,
@@ -532,19 +585,30 @@ const createStyles = (theme: Theme) =>
     formSmall: {
       maxWidth: "100%",
     },
+    inputContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      marginBottom: theme.spacing.md,
+    },
     input: {
+      flex: 1,
       height: 56,
-      width: "100%",
       paddingHorizontal: theme.spacing.md,
       borderRadius: theme.borderRadius.md,
       color: theme.colors.text,
       fontFamily: theme.typography.fontFamily,
       fontSize: theme.typography.sizes.md,
       backgroundColor: theme.colors.surface,
-      marginBottom: theme.spacing.md,
       borderWidth: 1,
       borderColor: theme.colors.border,
       ...theme.shadows.light,
+    },
+    inputError: {
+      borderColor: theme.colors.error,
+    },
+    errorIcon: {
+      position: "absolute",
+      right: theme.spacing.sm,
     },
     buttonContainer: {
       marginTop: theme.spacing.md,
@@ -613,6 +677,9 @@ const createStyles = (theme: Theme) =>
       alignItems: "center",
       ...theme.shadows.heavy,
     },
+    modalIcon: {
+      marginBottom: theme.spacing.md,
+    },
     modalTitle: {
       color: theme.colors.text,
       fontSize: theme.typography.sizes.md,
@@ -628,6 +695,9 @@ const createStyles = (theme: Theme) =>
       textAlign: "center",
       lineHeight: 20,
       marginBottom: theme.spacing.md,
+    },
+    modalMessageBold: {
+      fontWeight: 'bold',
     },
     modalButton: {
       backgroundColor: theme.colors.accent,
