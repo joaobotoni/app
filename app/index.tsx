@@ -285,6 +285,7 @@ const CustomModal: React.FC<{
   const styles = createStyles(theme);
 
   const isSuccessModal = title.includes("Sucesso!");
+  const isErrorModal = title.includes("Erro"); // Check for error title
 
   return (
     <Modal visible={isVisible} transparent animationType="fade" onRequestClose={onClose}>
@@ -306,6 +307,17 @@ const CustomModal: React.FC<{
                 style={styles.modalIcon}
               />
               <Text style={[styles.modalMessage, styles.modalMessageBold]}>{message}</Text>
+            </>
+          ) : isErrorModal ? ( // Render error icon if it's an error modal
+            <>
+              <Ionicons
+                name="close-circle" // Ionicons for error
+                size={60}
+                color={theme.colors.error}
+                style={styles.modalIcon}
+              />
+              <Text style={styles.modalTitle}>{title}</Text>
+              <Text style={styles.modalMessage}>{message}</Text>
             </>
           ) : (
             <>
