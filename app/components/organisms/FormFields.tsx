@@ -3,7 +3,7 @@ import { useResponsive } from '@/app/hooks/useResponsive';
 import { FormData, FormErrors } from '@/app/types';
 import React from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
-import { CustomInput } from '../atoms/CustomInput';
+import  CustomInput  from '../atoms/CustomInput';
 
 
 interface FormFieldsProps {

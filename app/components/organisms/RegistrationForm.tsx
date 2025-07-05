@@ -19,51 +19,29 @@ import { FormFields } from './FormFields';
 import { FormFooter } from './FormFooter';
 import { FormHeader } from './FormHeader';
 
-/**
- * Interface for modal content configuration
- * Defines the structure for modal messages
- */
 interface ModalContent {
   readonly title: string;
   readonly message: string;
 }
 
-/**
- * Interface for form submission result
- * Encapsulates the result of form validation and submission
- */
 interface FormSubmissionResult {
   readonly isValid: boolean;
   readonly errors?: FormErrors;
   readonly firstErrorMessage?: string;
 }
 
-/**
- * Interface for button animation configuration
- * Defines animation scale values for button interactions
- */
 interface ButtonAnimationConfig {
   readonly pressedScale: number;
   readonly normalScale: number;
 }
 
-/**
- * Interface for layout configuration
- * Encapsulates responsive layout properties
- */
 interface LayoutConfiguration {
   readonly horizontalPadding: number;
   readonly verticalPadding: number;
   readonly minHeight: number;
 }
 
-/**
- * RegistrationForm Component
- * Responsible for rendering the complete user registration form
- * Follows single responsibility principle - handles form orchestration and user interactions
- */
 export const RegistrationForm: React.FC = () => {
-  // Dependency injection - similar to Java constructor injection
   const { theme } = useTheme();
   const responsive = useResponsive();
   const { buttonScale, animateButton } = useButtonAnimation();
@@ -77,7 +55,6 @@ export const RegistrationForm: React.FC = () => {
     setFormErrors,
   } = useFormLogic();
 
-  // Component state management
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [modalState, setModalState] = useState<ModalState>({
     isVisible: false,
@@ -85,11 +62,7 @@ export const RegistrationForm: React.FC = () => {
     message: '',
   });
 
-  /**
-   * Private method: Get button animation configuration
-   * Centralizes animation scale values for consistency
-   * @returns ButtonAnimationConfig object with scale values
-   */
+
   const getButtonAnimationConfiguration = (): ButtonAnimationConfig => {
     return {
       pressedScale: 0.95,
@@ -97,13 +70,6 @@ export const RegistrationForm: React.FC = () => {
     };
   };
 
-  /**
-   * Private method: Get modal content for different scenarios
-   * Centralizes all modal messages for easy maintenance and localization
-   * @param type - The type of modal content needed
-   * @param customMessage - Optional custom message for validation errors
-   * @returns ModalContent object with title and message
-   */
   const getModalContent = (
     type: 'validation_error' | 'success' | 'server_error',
     customMessage?: string
@@ -126,11 +92,7 @@ export const RegistrationForm: React.FC = () => {
     return modalContents[type];
   };
 
-  /**
-   * Private method: Calculate responsive layout configuration
-   * Determines padding and spacing based on device type
-   * @returns LayoutConfiguration object with responsive layout properties
-   */
+ 
   const calculateResponsiveLayout = (): LayoutConfiguration => {
     const screenHeight = responsive.screenHeight || Dimensions.get('window').height;
     
@@ -143,11 +105,6 @@ export const RegistrationForm: React.FC = () => {
     };
   };
 
-  /**
-   * Private method: Create container styles
-   * Encapsulates main container styling logic
-   * @returns ViewStyle object for main container
-   */
   const createContainerStyles = (): ViewStyle => {
     return {
       flex: 1,
@@ -155,11 +112,6 @@ export const RegistrationForm: React.FC = () => {
     };
   };
 
-  /**
-   * Private method: Create scroll container styles
-   * Encapsulates scroll view styling logic with responsive layout
-   * @returns ViewStyle object for scroll container
-   */
   const createScrollContainerStyles = (): ViewStyle => {
     const layout = calculateResponsiveLayout();
 
@@ -172,11 +124,6 @@ export const RegistrationForm: React.FC = () => {
     };
   };
 
-  /**
-   * Private method: Create dynamic stylesheet
-   * Combines all styling methods into a cohesive stylesheet
-   * @returns StyleSheet object with all component styles
-   */
   const createDynamicStylesheet = () => {
     return StyleSheet.create({
       container: createContainerStyles(),
@@ -184,11 +131,6 @@ export const RegistrationForm: React.FC = () => {
     });
   };
 
-  /**
-   * Private method: Validate form data before submission
-   * Encapsulates form validation logic and error handling
-   * @returns FormSubmissionResult object with validation results
-   */
   const validateFormBeforeSubmission = (): FormSubmissionResult => {
     const validationErrors = validateFormData();
     
@@ -204,12 +146,6 @@ export const RegistrationForm: React.FC = () => {
     return { isValid: true };
   };
 
-  /**
-   * Private method: Show modal with specified content
-   * Encapsulates modal display logic
-   * @param title - Modal title
-   * @param message - Modal message
-   */
   const displayModal = useCallback((title: string, message: string): void => {
     setModalState({
       isVisible: true,
@@ -218,10 +154,6 @@ export const RegistrationForm: React.FC = () => {
     });
   }, []);
 
-  /**
-   * Private method: Hide modal and handle post-modal actions
-   * Encapsulates modal hiding logic and cleanup
-   */
   const hideModal = useCallback((): void => {
     const isSuccessModal = modalState.title === 'Success!';
     
@@ -235,19 +167,10 @@ export const RegistrationForm: React.FC = () => {
     }
   }, [modalState.title]);
 
-  /**
-   * Private method: Reset form after successful submission
-   * Encapsulates form reset logic
-   */
   const resetFormAfterSuccess = (): void => {
     resetForm();
   };
 
-  /**
-   * Private method: Handle form validation errors
-   * Encapsulates validation error handling logic
-   * @param validationResult - The validation result object
-   */
   const handleValidationErrors = (validationResult: FormSubmissionResult): void => {
     if (validationResult.errors) {
       setFormErrors(validationResult.errors);
@@ -259,11 +182,6 @@ export const RegistrationForm: React.FC = () => {
     }
   };
 
-  /**
-   * Private method: Execute form submission to server
-   * Encapsulates API submission logic
-   * @returns Promise<boolean> indicating success or failure
-   */
   const executeFormSubmission = async (): Promise<boolean> => {
     try {
       await submitForm(formData);
@@ -273,29 +191,16 @@ export const RegistrationForm: React.FC = () => {
     }
   };
 
-  /**
-   * Private method: Handle successful form submission
-   * Encapsulates success handling logic
-   */
   const handleSubmissionSuccess = (): void => {
     const modalContent = getModalContent('success');
     displayModal(modalContent.title, modalContent.message);
   };
 
-  /**
-   * Private method: Handle form submission failure
-   * Encapsulates error handling logic
-   */
   const handleSubmissionFailure = (): void => {
     const modalContent = getModalContent('server_error');
     displayModal(modalContent.title, modalContent.message);
   };
 
-  /**
-   * Private method: Set loading state and animate button
-   * Encapsulates loading state management
-   * @param loading - Loading state
-   */
   const setLoadingStateWithAnimation = (loading: boolean): void => {
     const animationConfig = getButtonAnimationConfiguration();
     
@@ -303,12 +208,7 @@ export const RegistrationForm: React.FC = () => {
     animateButton(loading ? animationConfig.pressedScale : animationConfig.normalScale);
   };
 
-  /**
-   * Private method: Handle complete form submission process
-   * Orchestrates the entire form submission workflow
-   */
   const handleFormSubmission = useCallback(async (): Promise<void> => {
-    // Step 1: Validate form data
     const validationResult = validateFormBeforeSubmission();
     
     if (!validationResult.isValid) {
@@ -316,27 +216,19 @@ export const RegistrationForm: React.FC = () => {
       return;
     }
 
-    // Step 2: Set loading state and animate button
     setLoadingStateWithAnimation(true);
 
-    // Step 3: Execute form submission
     const isSubmissionSuccessful = await executeFormSubmission();
 
-    // Step 4: Handle submission result
     if (isSubmissionSuccessful) {
       handleSubmissionSuccess();
     } else {
       handleSubmissionFailure();
     }
 
-    // Step 5: Reset loading state
     setLoadingStateWithAnimation(false);
   }, [formData, validateFormData, setFormErrors, animateButton, submitForm]);
 
-  /**
-   * Private method: Handle button press animation
-   * Encapsulates button press animation logic
-   */
   const handleButtonPressAnimation = (): void => {
     if (!isLoading) {
       const animationConfig = getButtonAnimationConfiguration();
@@ -344,10 +236,6 @@ export const RegistrationForm: React.FC = () => {
     }
   };
 
-  /**
-   * Private method: Handle button release animation
-   * Encapsulates button release animation logic
-   */
   const handleButtonReleaseAnimation = (): void => {
     if (!isLoading) {
       const animationConfig = getButtonAnimationConfiguration();
@@ -355,11 +243,6 @@ export const RegistrationForm: React.FC = () => {
     }
   };
 
-  /**
-   * Private method: Render form fields section
-   * Encapsulates form fields rendering logic
-   * @returns React.ReactElement containing form fields
-   */
   const renderFormFieldsSection = (): React.ReactElement => {
     return (
       <FormFields
@@ -371,11 +254,6 @@ export const RegistrationForm: React.FC = () => {
     );
   };
 
-  /**
-   * Private method: Render submit button
-   * Encapsulates submit button rendering logic
-   * @returns React.ReactElement containing submit button
-   */
   const renderSubmitButton = (): React.ReactElement => {
     return (
       <CustomButton
@@ -389,11 +267,6 @@ export const RegistrationForm: React.FC = () => {
     );
   };
 
-  /**
-   * Private method: Render modal component
-   * Encapsulates modal rendering logic
-   * @returns React.ReactElement containing modal
-   */
   const renderModalComponent = (): React.ReactElement => {
     return (
       <CustomModal
@@ -405,12 +278,6 @@ export const RegistrationForm: React.FC = () => {
     );
   };
 
-  /**
-   * Private method: Render scroll view content
-   * Orchestrates the rendering of all form content
-   * @param scrollContainerStyles - Styles for scroll container
-   * @returns React.ReactElement containing scroll view content
-   */
   const renderScrollViewContent = (scrollContainerStyles: ViewStyle): React.ReactElement => {
     const formFieldsSection = renderFormFieldsSection();
     const submitButton = renderSubmitButton();
@@ -429,13 +296,6 @@ export const RegistrationForm: React.FC = () => {
     );
   };
 
-  /**
-   * Private method: Render keyboard avoiding view
-   * Encapsulates keyboard avoiding view rendering logic
-   * @param containerStyles - Styles for main container
-   * @param scrollContent - Scroll view content element
-   * @returns React.ReactElement containing keyboard avoiding view
-   */
   const renderKeyboardAvoidingView = (
     containerStyles: ViewStyle,
     scrollContent: React.ReactElement
@@ -450,7 +310,6 @@ export const RegistrationForm: React.FC = () => {
     );
   };
 
-  // Main render method - similar to Java's main execution method
   const dynamicStyles = createDynamicStylesheet();
   const scrollContent = renderScrollViewContent(dynamicStyles.scrollContainer);
   const keyboardAvoidingView = renderKeyboardAvoidingView(dynamicStyles.container, scrollContent);

@@ -1,25 +1,41 @@
-import { ResponsiveConfig } from '@/app/types';
 import { useEffect, useState } from 'react';
 import { Dimensions } from 'react-native';
 
-export const useResponsive = (): ResponsiveConfig => {
-  const [dimensions, setDimensions] = useState(() => {
-    const { width, height } = Dimensions.get('window');
-    return { width, height };
-  });
+interface Size {
+  width: number;
+  height: number;
+}
+
+const getScreenSize = (): Size => {
+  const { width, height } = Dimensions.get('window');
+  return { width, height };
+};
+
+const isTabletDevice = (width: number): boolean => {
+  return width >= 768;
+};
+
+const isSmallScreenDevice = (width: number): boolean => {
+  return width < 400;
+};
+
+export const useResponsive = () => {
+  const [size, setSize] = useState<Size>(getScreenSize());
 
   useEffect(() => {
     const subscription = Dimensions.addEventListener('change', ({ window }) => {
-      setDimensions({ width: window.width, height: window.height });
+      setSize({ width: window.width, height: window.height });
     });
 
-    return () => subscription?.remove();
+    return () => {
+      subscription.remove();
+    };
   }, []);
 
   return {
-    isSmallScreen: dimensions.width < 400,
-    isTablet: dimensions.width >= 768,
-    screenWidth: dimensions.width,
-    screenHeight: dimensions.height,
+    isSmallScreen: isSmallScreenDevice(size.width),
+    isTablet: isTabletDevice(size.width),
+    screenWidth: size.width,
+    screenHeight: size.height,
   };
 };

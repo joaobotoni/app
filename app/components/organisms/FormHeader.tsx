@@ -3,19 +3,11 @@ import { useResponsive } from '@/app/hooks/useResponsive';
 import React from 'react';
 import { StyleSheet, Text, View, TextStyle, ViewStyle } from 'react-native';
 
-/**
- * Interface for header text content
- * Defines the structure for all header text elements
- */
 interface HeaderTextContent {
   readonly title: string;
   readonly subtitle: string;
 }
 
-/**
- * Interface for responsive typography configuration
- * Encapsulates font sizing and spacing properties
- */
 interface ResponsiveTypography {
   readonly titleFontSize: number;
   readonly subtitleFontSize: number;
@@ -23,10 +15,6 @@ interface ResponsiveTypography {
   readonly subtitleMaxWidth: number;
 }
 
-/**
- * Interface for divider configuration
- * Defines visual properties for the accent divider
- */
 interface DividerConfiguration {
   readonly width: number;
   readonly height: number;
@@ -34,21 +22,10 @@ interface DividerConfiguration {
   readonly opacity: number;
 }
 
-/**
- * FormHeader Component
- * Responsible for rendering the welcome header section with title, subtitle and divider
- * Follows single responsibility principle - only handles header rendering
- */
 export const FormHeader: React.FC = () => {
-  // Dependency injection - similar to Java constructor injection
   const { theme } = useTheme();
   const responsive = useResponsive();
 
-  /**
-   * Private method: Get header text content
-   * Centralizes all text content for easy maintenance and localization
-   * @returns HeaderTextContent object with title and subtitle
-   */
   const getHeaderTextContent = (): HeaderTextContent => {
     return {
       title: 'Welcome',
@@ -56,11 +33,6 @@ export const FormHeader: React.FC = () => {
     };
   };
 
-  /**
-   * Private method: Calculate responsive typography configuration
-   * Determines font sizes and spacing based on device type
-   * @returns ResponsiveTypography object with responsive text properties
-   */
   const calculateResponsiveTypography = (): ResponsiveTypography => {
     const TITLE_SIZE_BONUS_TABLET = 16;
     const TITLE_SIZE_BONUS_MOBILE = 8;
@@ -86,11 +58,6 @@ export const FormHeader: React.FC = () => {
     };
   };
 
-  /**
-   * Private method: Get divider configuration
-   * Defines the visual properties for the accent divider
-   * @returns DividerConfiguration object with divider properties
-   */
   const getDividerConfiguration = (): DividerConfiguration => {
     return {
       width: 60,
@@ -100,11 +67,6 @@ export const FormHeader: React.FC = () => {
     };
   };
 
-  /**
-   * Private method: Create container styles
-   * Encapsulates container styling logic
-   * @returns ViewStyle object for main container
-   */
   const createContainerStyles = (): ViewStyle => {
     return {
       alignItems: 'center',
@@ -113,11 +75,6 @@ export const FormHeader: React.FC = () => {
     };
   };
 
-  /**
-   * Private method: Create title text styles
-   * Encapsulates title styling logic with responsive typography
-   * @returns TextStyle object for title text
-   */
   const createTitleTextStyles = (): TextStyle => {
     const typography = calculateResponsiveTypography();
 
@@ -131,11 +88,6 @@ export const FormHeader: React.FC = () => {
     };
   };
 
-  /**
-   * Private method: Create subtitle text styles
-   * Encapsulates subtitle styling logic with responsive typography
-   * @returns TextStyle object for subtitle text
-   */
   const createSubtitleTextStyles = (): TextStyle => {
     const typography = calculateResponsiveTypography();
 
@@ -150,11 +102,6 @@ export const FormHeader: React.FC = () => {
     };
   };
 
-  /**
-   * Private method: Create divider styles
-   * Encapsulates divider styling logic
-   * @returns ViewStyle object for accent divider
-   */
   const createDividerStyles = (): ViewStyle => {
     const dividerConfig = getDividerConfiguration();
 
@@ -167,11 +114,6 @@ export const FormHeader: React.FC = () => {
     };
   };
 
-  /**
-   * Private method: Create dynamic stylesheet
-   * Combines all styling methods into a cohesive stylesheet
-   * @returns StyleSheet object with all component styles
-   */
   const createDynamicStylesheet = () => {
     return StyleSheet.create({
       container: createContainerStyles(),
@@ -181,13 +123,6 @@ export const FormHeader: React.FC = () => {
     });
   };
 
-  /**
-   * Private method: Render title text
-   * Encapsulates the rendering logic for the main title
-   * @param titleText - The title text to display
-   * @param titleStyles - The styles to apply to the title
-   * @returns React.ReactElement containing the styled title
-   */
   const renderTitleText = (
     titleText: string,
     titleStyles: TextStyle
@@ -199,13 +134,6 @@ export const FormHeader: React.FC = () => {
     );
   };
 
-  /**
-   * Private method: Render subtitle text
-   * Encapsulates the rendering logic for the subtitle
-   * @param subtitleText - The subtitle text to display
-   * @param subtitleStyles - The styles to apply to the subtitle
-   * @returns React.ReactElement containing the styled subtitle
-   */
   const renderSubtitleText = (
     subtitleText: string,
     subtitleStyles: TextStyle
@@ -217,12 +145,6 @@ export const FormHeader: React.FC = () => {
     );
   };
 
-  /**
-   * Private method: Render accent divider
-   * Encapsulates the rendering logic for the decorative divider
-   * @param dividerStyles - The styles to apply to the divider
-   * @returns React.ReactElement containing the styled divider
-   */
   const renderAccentDivider = (
     dividerStyles: ViewStyle
   ): React.ReactElement => {
@@ -231,13 +153,6 @@ export const FormHeader: React.FC = () => {
     );
   };
 
-  /**
-   * Private method: Render header content
-   * Orchestrates the rendering of all header elements
-   * @param textContent - The header text content object
-   * @param styles - The dynamic stylesheet
-   * @returns React.ReactElement containing all header content
-   */
   const renderHeaderContent = (
     textContent: HeaderTextContent,
     styles: any
@@ -249,13 +164,6 @@ export const FormHeader: React.FC = () => {
     return [titleElement, subtitleElement, dividerElement];
   };
 
-  /**
-   * Private method: Render header container
-   * Encapsulates the main container rendering logic
-   * @param containerStyles - The styles for the container
-   * @param headerElements - Array of header content elements
-   * @returns React.ReactElement containing the complete header
-   */
   const renderHeaderContainer = (
     containerStyles: ViewStyle,
     headerElements: React.ReactElement[]
@@ -271,7 +179,6 @@ export const FormHeader: React.FC = () => {
     );
   };
 
-  // Main render method - similar to Java's main execution method
   const dynamicStyles = createDynamicStylesheet();
   const textContent = getHeaderTextContent();
   const headerElements = renderHeaderContent(textContent, dynamicStyles);
