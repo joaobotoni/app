@@ -33,7 +33,7 @@ export const useForm = ({ onSuccess, onError }: UseFormProps): UseFormReturn => 
       [field]: value,
     }));
     
-    // Clear error when user starts typing
+
     setFormErrors(prev => {
       const newErrors = { ...prev };
       delete newErrors[field];
@@ -64,7 +64,7 @@ export const useForm = ({ onSuccess, onError }: UseFormProps): UseFormReturn => 
     setIsLoading(true);
     
     try {
-      // Simulate API call
+    
       await new Promise<void>((resolve) => setTimeout(resolve, 2500));
       onSuccess('Sua conta foi criada com sucesso. Bem-vindo!');
       resetForm();

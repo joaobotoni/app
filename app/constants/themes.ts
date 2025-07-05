@@ -32,7 +32,7 @@ export const LIGHT_THEME: Theme = {
       ios: 'SF Pro Display',
       android: 'Roboto',
       default: 'system-ui',
-    }),
+    }) as string,
     sizes: {
       sm: 14,
       md: 16,
